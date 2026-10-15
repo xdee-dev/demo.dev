@@ -1,0 +1,21 @@
+CARA MENJALANKAN RENTAL MANAGEMENT SYSTEM (Windows)
+====================================================
+
+SEKALI SAJA (pertama kali):
+  1. Klik dua kali  1-SETUP.bat
+  2. Saat ditanya "Port", tekan Enter.
+  3. Saat ditanya "Password postgres", ketik password yang Anda buat waktu
+     menginstal PostgreSQL, lalu Enter. (Huruf tidak terlihat saat diketik - itu normal.)
+  4. Tunggu sampai muncul "SETUP SELESAI" (beberapa menit, perlu internet).
+
+SETIAP KALI MEMAKAI APLIKASI:
+  1. Klik dua kali  2-JALANKAN-APLIKASI.bat
+  2. Browser terbuka otomatis ke http://localhost:5173
+     (kalau tidak terbuka, buka alamat itu sendiri di Chrome/Edge)
+  3. Login:  owner@nusantara.demo   password: DemoRental2026
+  4. Jangan tutup jendela hitam selama aplikasi dipakai.
+     Menutup jendela hitam = mematikan aplikasi.
+
+Akun demo lain: admin@nusantara.demo, finance@nusantara.demo,
+operator@nusantara.demo, viewer@nusantara.demo, multi@demo.local,
+superadmin@rental.local (semua password: DemoRental2026)

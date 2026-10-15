@@ -1,0 +1,42 @@
+# Production-like stack: PostgreSQL + app. Put a TLS reverse proxy (Caddy/nginx) in front for HTTPS.
+#   1. cp .env.example .env  (set POSTGRES_PASSWORD, APP_URL, SMTP_*)
+#   2. docker compose up -d --build
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rental_db
+      POSTGRES_USER: rental_admin              # superuser — used only by init script below
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?set POSTGRES_ADMIN_PASSWORD in .env}
+      APP_DB_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/docker-init-db.sh:/docker-entrypoint-initdb.d/10-app-role.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rental_admin -d rental_db"]
+      interval: 10s
+      retries: 5
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgres://rental_app:${POSTGRES_PASSWORD}@db:5432/rental_db
+      APP_URL: ${APP_URL:-https://rental.domainanda.co.id}
+      TRUST_PROXY: "1"
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+    ports:
+      - "127.0.0.1:4000:4000"                  # expose only to the reverse proxy on the host
+    volumes:
+      - storage:/data/storage
+
+volumes:
+  pgdata:
+  storage:
