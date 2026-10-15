@@ -23,5 +23,5 @@ RUN mkdir -p /data/storage && chown -R node:node /data
 USER node
 WORKDIR /app/server
 EXPOSE 4000
-HEALTHCHECK --interval=30s --timeout=5s CMD node -e "fetch('http://localhost:4000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+HEALTHCHECK --interval=30s --timeout=5s CMD node -e "fetch('http://localhost:' + (process.env.PORT || 4000) + '/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["node", "dist/index.js"]

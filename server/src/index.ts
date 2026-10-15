@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fork } from 'node:child_process';
 import { createApp } from './app.js';
 import { config } from './config.js';
 import { runMigrations } from './db/migrate.js';
@@ -22,6 +25,16 @@ async function checkDbRole() {
 async function main() {
   await checkDbRole();
   if (process.env.MIGRATE_ON_START !== 'false') await runMigrations();
+  if (process.env.SEED_ON_START === 'true') {
+    const seedPath = path.resolve(import.meta.dirname, 'db/seed.js');
+    if (fs.existsSync(seedPath)) {
+      console.log('🌱 Menjalankan seed awal...');
+      await new Promise<void>((resolve, reject) => {
+        const child = fork(seedPath, [], { env: { ...process.env, SEED_ALLOW_PRODUCTION: 'true' } });
+        child.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`Seed gagal dengan exit code ${code}`))));
+      }).catch((e) => console.warn('⚠ Seed otomatis dilewati/gagal:', e.message));
+    }
+  }
   const app = createApp();
   const server = app.listen(config.port, () => {
     console.log(`✔ Rental Management System API listening on http://localhost:${config.port} (${config.env})`);
